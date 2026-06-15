@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import type { MatchHistoryResponse, PlayersResponse } from "@/lib/types";
 import { MatchHistory } from "../../components/MatchHistory";
+import { PlayerAverages } from "../../components/PlayerAverages";
 import { PlayerRecords } from "../../components/PlayerRecords";
 import { RankTimeline } from "../../components/RankTimeline";
 import { MmrCard } from "../../components/MmrCard";
@@ -133,6 +134,17 @@ export default function PlayerPage() {
             />
           )}
           </div>
+
+          {player.puuid && !player.error && (
+            <div className="mt-6">
+              <PlayerAverages
+                puuid={player.puuid}
+                championId={player.championId}
+                championName={player.championName}
+                tier={player.soloQueue?.tier}
+              />
+            </div>
+          )}
 
           <section className="mt-6">
             <h2 className="mb-3 text-lg font-semibold text-gold-300">
