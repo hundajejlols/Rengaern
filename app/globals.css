@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Motyw w stylu op.gg / u.gg: neutralna ciemna szarość + niebieski akcent.
+   Nazwy tokenów zostają (navy/gold), zmieniamy tylko wartości — dzięki temu
+   cała strona przeskakuje na nowy wygląd bez ruszania komponentów. */
+@theme {
+  --color-navy-950: #15161a; /* tło strony */
+  --color-navy-900: #1f2024; /* karty */
+  --color-navy-800: #2a2c31; /* hover / nagłówki tabel */
+  --color-navy-700: #34363c; /* obramowania */
+  --color-gold-400: #5b8cff; /* akcent (nagłówki, aktywne) — niebieski */
+  --color-gold-300: #cdd0d4; /* główny tekst — jasna szarość */
+  --color-gold-500: #3d4450; /* subtelne ringi / akcenty */
+}
+
+html,
+body {
+  background-color: var(--color-navy-950);
+  color: var(--color-gold-300);
+  min-height: 100%;
+}

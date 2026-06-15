@@ -1,0 +1,28 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# env — KLUCZ RIOT NIGDY DO REPO (ignorujemy wszystkie .env oprócz przykładu)
+.env*
+!.env.example
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# baza danych SQLite/libSQL (snapshoty + cache meczów)
+/data/*.db
+/data/*.db-*
+
+# vercel
+.vercel
