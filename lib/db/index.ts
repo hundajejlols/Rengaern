@@ -30,6 +30,13 @@ export const db: Client =
 globalForDb.__dbClient = db;
 
 async function initSchema(): Promise<void> {
+  // Lokalny plik SQLite blokuje się przy współbieżnych zapisach (dashboard robi
+  // ich dużo naraz). WAL + busy_timeout sprawiają, że zapisy czekają zamiast
+  // rzucać SQLITE_BUSY. Na Turso (libsql://) pomijamy — serwer ogarnia to sam.
+  if (url.startsWith("file:")) {
+    await db.execute("PRAGMA journal_mode = WAL");
+    await db.execute("PRAGMA busy_timeout = 8000");
+  }
   await db.batch(
     [
       `CREATE TABLE IF NOT EXISTS match_cache (

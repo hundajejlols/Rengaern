@@ -22,10 +22,10 @@ function scoreClass(score: number): string {
 
 export function MatchDetail({
   matchId,
-  highlightPuuid,
+  highlightPuuids,
 }: {
   matchId: string;
-  highlightPuuid: string;
+  highlightPuuids: string[];
 }) {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["match", matchId],
@@ -76,7 +76,7 @@ export function MatchDetail({
                         <PlayerRow
                           key={p.puuid}
                           p={p}
-                          highlight={p.puuid === highlightPuuid}
+                          highlight={highlightPuuids.includes(p.puuid)}
                         />
                       ))}
                     </tbody>

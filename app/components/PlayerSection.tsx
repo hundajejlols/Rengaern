@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import type { MatchHistoryResponse, PlayerRankData } from "@/lib/types";
-import { MatchHistory } from "./MatchHistory";
 import { PlayerAverages } from "./PlayerAverages";
 import { PlayerRecords } from "./PlayerRecords";
 import { RankTimeline } from "./RankTimeline";
@@ -47,7 +46,7 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:items-start">
+      <div className="space-y-4">
         <div className="rounded-xl border border-navy-700 bg-navy-900 p-5">
           <div className="flex flex-wrap items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -90,7 +89,7 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
       </div>
 
       {player.puuid && !player.error && (
-        <div className="mt-6">
+        <div className="mt-4">
           <PlayerAverages
             puuid={player.puuid}
             championId={player.championId}
@@ -99,23 +98,6 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
           />
         </div>
       )}
-
-      <div className="mt-6">
-        <h3 className="mb-3 text-lg font-semibold text-gold-300">
-          Historia meczów na {player.championName}
-        </h3>
-        {player.error ? (
-          <p className="text-sm text-red-400">Błąd: {player.error}</p>
-        ) : player.puuid ? (
-          <MatchHistory
-            puuid={player.puuid}
-            championId={player.championId}
-            championName={player.championName}
-          />
-        ) : (
-          <p className="text-sm text-gold-300/50">Brak danych gracza.</p>
-        )}
-      </div>
     </section>
   );
 }
