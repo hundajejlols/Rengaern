@@ -79,3 +79,29 @@ export const matchSchema = z.object({
 });
 export type Match = z.infer<typeof matchSchema>;
 export type Participant = z.infer<typeof participantSchema>;
+
+// SPECTATOR-V5: aktualna gra (tylko potrzebne pola).
+export const activeGameSchema = z.object({
+  gameId: z.number(),
+  gameLength: z.number(), // sekundy od startu (może być ujemne w fazie ładowania)
+  gameMode: z.string(),
+  gameQueueConfigId: z.number().optional(),
+  participants: z.array(
+    z.object({
+      puuid: z.string(),
+      teamId: z.number(),
+      championId: z.number(),
+      spell1Id: z.number(),
+      spell2Id: z.number(),
+      riotId: z.string().nullish(),
+      perks: z
+        .object({
+          perkIds: z.array(z.number()),
+          perkStyle: z.number(),
+          perkSubStyle: z.number(),
+        })
+        .nullish(),
+    }),
+  ),
+});
+export type ActiveGame = z.infer<typeof activeGameSchema>;

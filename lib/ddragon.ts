@@ -26,6 +26,43 @@ export function championIconUrl(version: string, championName: string): string {
   return `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${championName}.png`;
 }
 
+// --- Mapa championId -> { name, id } (cache w procesie). Spectator-V5 zwraca
+//     tylko numeryczne ID championa, a ikony idą po "id" (np. "Rengar"). ---
+let champMap: {
+  version: string;
+  map: Map<number, { name: string; id: string; tags: string[] }>;
+} | null = null;
+
+async function ensureChampMap(version: string) {
+  if (champMap && champMap.version === version) return champMap;
+  const res = await fetch(
+    `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`,
+    { next: { revalidate: 86400 } },
+  );
+  const json = (await res.json()) as {
+    data: Record<
+      string,
+      { key: string; id: string; name: string; tags: string[] }
+    >;
+  };
+  const map = new Map<number, { name: string; id: string; tags: string[] }>();
+  for (const c of Object.values(json.data)) {
+    map.set(Number(c.key), { name: c.name, id: c.id, tags: c.tags ?? [] });
+  }
+  champMap = { version, map };
+  return champMap;
+}
+
+export async function getChampionById(
+  version: string,
+  championId: number,
+): Promise<{ name: string; iconUrl: string; tags: string[] } | null> {
+  const data = await ensureChampMap(version);
+  const c = data.map.get(championId);
+  if (!c) return null;
+  return { name: c.name, iconUrl: championIconUrl(version, c.id), tags: c.tags };
+}
+
 export function itemIconUrl(version: string, itemId: number): string | null {
   if (!itemId) return null; // 0 = pusty slot
   return `https://ddragon.leagueoflegends.com/cdn/${version}/img/item/${itemId}.png`;

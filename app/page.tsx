@@ -1,8 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import type { PlayersResponse } from "@/lib/types";
+import { LiveGame } from "./components/LiveGame";
+import { PlayerSection } from "./components/PlayerSection";
+import { RefreshButton } from "./components/RefreshButton";
 
 async function fetchPlayers(): Promise<PlayersResponse> {
   const res = await fetch("/api/players");
@@ -13,56 +15,48 @@ async function fetchPlayers(): Promise<PlayersResponse> {
   return res.json();
 }
 
-export default function MenuPage() {
+export default function HomePage() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["players"],
     queryFn: fetchPlayers,
   });
 
+  const puuids =
+    data?.players.filter((p) => p.puuid && !p.error).map((p) => p.puuid) ?? [];
+
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <header className="mb-10 text-center">
-        <h1 className="text-4xl font-bold text-gold-400">
-          Ivern &amp; Rengar Challenge
-        </h1>
-        <p className="mt-2 text-sm text-gold-300/70">
-          Jeden gracz = jeden champion. Wybierz, kogo sprawdzasz.
-        </p>
+    <main className="mx-auto max-w-4xl px-6 py-10">
+      <header className="mb-6 flex flex-wrap items-center gap-3">
+        <div className="mr-auto">
+          <h1 className="text-3xl font-bold text-gold-400">
+            Ivern &amp; Rengar Challenge
+          </h1>
+          <p className="text-sm text-gold-300/60">
+            Jeden gracz = jeden champion. Wszystko w jednym miejscu.
+          </p>
+        </div>
+        <RefreshButton />
       </header>
 
-      {isLoading && (
-        <p className="text-center text-gold-300/70">Ładowanie…</p>
-      )}
+      {isLoading && <p className="text-gold-300/70">Ładowanie…</p>}
 
       {isError && (
-        <div className="rounded-lg border border-red-700 bg-red-950/40 p-4 text-center text-red-300">
+        <div className="rounded-lg border border-red-700 bg-red-950/40 p-4 text-red-300">
           Błąd: {(error as Error).message}
         </div>
       )}
 
       {data && (
-        <div className="grid gap-6 sm:grid-cols-2">
-          {data.players.map((p) => (
-            <Link
-              key={p.id}
-              href={`/player/${p.id}`}
-              className="group flex flex-col items-center gap-4 rounded-2xl border border-navy-700 bg-navy-900 p-8 transition hover:border-gold-500/70 hover:bg-navy-800"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={p.championIconUrl}
-                alt={p.championName}
-                className="h-24 w-24 rounded-xl ring-2 ring-gold-500/40 transition group-hover:ring-gold-400"
-              />
-              <div className="text-center">
-                <div className="text-xl font-bold text-gold-300">
-                  {p.championName}
-                </div>
-                <div className="text-sm text-gold-300/60">{p.displayName}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <>
+          {/* Jedna wspólna sekcja „Aktualna gra" — grają razem. */}
+          {puuids.length > 0 && <LiveGame puuids={puuids} />}
+
+          <div className="space-y-12">
+            {data.players.map((player) => (
+              <PlayerSection key={player.id} player={player} />
+            ))}
+          </div>
+        </>
       )}
     </main>
   );

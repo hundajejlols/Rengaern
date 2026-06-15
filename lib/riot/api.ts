@@ -1,14 +1,16 @@
 // Funkcje per endpoint Riot API. Pamiętaj o routingu:
 //  - ACCOUNT-V1 i MATCH-V5 -> REGIONAL_HOST (europe)
 //  - LEAGUE-V4              -> PLATFORM_HOST (euw1)
-import { riotGet } from "./client";
+import { riotGet, RiotApiError } from "./client";
 import { PLATFORM_HOST, REGIONAL_HOST } from "./routing";
 import {
   accountSchema,
   leagueEntriesSchema,
   matchIdsSchema,
   matchSchema,
+  activeGameSchema,
   type Account,
+  type ActiveGame,
   type LeagueEntry,
   type Match,
 } from "./types";
@@ -53,6 +55,23 @@ export function getMatchIdsByPuuid(
 export function getMatch(matchId: string): Promise<Match> {
   const path = `/lol/match/v5/matches/${encodeURIComponent(matchId)}`;
   return riotGet(REGIONAL_HOST, path, matchSchema);
+}
+
+/**
+ * Aktualna gra gracza (SPECTATOR-V5, platform euw1). Zwraca null, gdy gracz
+ * nie jest w grze (Riot odpowiada 404).
+ */
+export async function getActiveGame(puuid: string): Promise<ActiveGame | null> {
+  const path = `/lol/spectator/v5/active-games/by-summoner/${encodeURIComponent(
+    puuid,
+  )}`;
+  try {
+    return await riotGet(PLATFORM_HOST, path, activeGameSchema);
+  } catch (err) {
+    // 404 = nie w grze; każdy inny błąd propagujemy.
+    if (err instanceof RiotApiError && err.status === 404) return null;
+    throw err;
+  }
 }
 
 /** Pomocniczo: wyciąga wpis SoloQ z listy wpisów ligowych. */

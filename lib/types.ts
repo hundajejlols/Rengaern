@@ -104,6 +104,29 @@ export interface MatchDetailResponse {
   }[];
 }
 
+// --- Aktualna gra (live) ---
+export interface LiveParticipant {
+  puuid: string;
+  teamId: number;
+  riotId: string;
+  championName: string;
+  championIconUrl: string | null;
+  summonerSpellIcons: (string | null)[];
+  keystoneIcon: string | null;
+  subStyleIcon: string | null;
+  rank: string | null;
+  position: string; // wywnioskowana rola: TOP/JUNGLE/MIDDLE/BOTTOM/UTILITY
+  isTracked: boolean; // czy to nasz challenge'owy gracz
+}
+
+export interface LiveGameResponse {
+  inGame: boolean;
+  gameLength: number; // sekundy
+  gameMode: string;
+  queueId: number | null;
+  teams: { teamId: number; players: LiveParticipant[] }[];
+}
+
 export interface MatchHistoryResponse {
   puuid: string;
   /** Champion, którym gracz MUSI grać w challenge — po nim filtrujemy. */
