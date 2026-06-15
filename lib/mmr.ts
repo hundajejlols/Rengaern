@@ -16,26 +16,50 @@ export interface MmrEstimate {
   matchesUsed: number; // z ilu meczów
 }
 
+// Cache wyniku MMR — drogie liczenie, a zmienia się wolno (TTL 15 min).
+const mmrCache = new Map<string, { value: MmrEstimate; ts: number }>();
+const MMR_TTL_MS = 15 * 60 * 1000;
+
 export async function estimateMmr(
   puuid: string,
   matchCount = 3,
 ): Promise<MmrEstimate> {
+  const cached = mmrCache.get(puuid);
+  if (cached && Date.now() - cached.ts < MMR_TTL_MS) return cached.value;
+
+  const result = await computeMmr(puuid, matchCount);
+  mmrCache.set(puuid, { value: result, ts: Date.now() });
+  return result;
+}
+
+async function computeMmr(
+  puuid: string,
+  matchCount: number,
+): Promise<MmrEstimate> {
   // Ostatnie mecze ranked SoloQ tego gracza.
   const ids = await getMatchIdsByPuuid(puuid, { count: matchCount, queue: 420 });
 
-  const values: number[] = [];
-  let matchesUsed = 0;
+  // Mecze pobieramy równolegle (po cache to i tak tanie), potem zbieramy
+  // unikalne PUUID-y graczy do oceny.
+  const matches = await Promise.all(ids.map((id) => getCachedMatch(id)));
+  const matchesUsed = matches.length;
 
-  for (const id of ids) {
-    const match = await getCachedMatch(id);
-    matchesUsed++;
+  const opponents = new Set<string>();
+  for (const match of matches) {
     for (const p of match.info.participants) {
       if (EXCLUDED_CHAMPS.has(p.championId)) continue; // pomijamy Rengara/Iverna
-      const solo = await getSoloEntry(p.puuid);
-      if (!solo) continue; // unranked -> pomijamy
-      values.push(rankToValue(solo.tier, solo.rank, solo.leaguePoints));
+      opponents.add(p.puuid);
     }
   }
+
+  // Rangi wszystkich graczy pobieramy RÓWNOLEGLE (pula klienta ogranicza liczbę
+  // naraz) — to główne przyspieszenie względem pętli sekwencyjnej.
+  const entries = await Promise.all(
+    [...opponents].map((p) => getSoloEntry(p)),
+  );
+  const values = entries
+    .filter((e) => e !== null)
+    .map((e) => rankToValue(e!.tier, e!.rank, e!.leaguePoints));
 
   if (values.length === 0) {
     return { estimatedRank: null, sampleSize: 0, matchesUsed };

@@ -50,6 +50,16 @@ async function initSchema(): Promise<void> {
        )`,
       `CREATE INDEX IF NOT EXISTS idx_snapshots_puuid
          ON rank_snapshots(puuid, queue, created_at)`,
+      `CREATE TABLE IF NOT EXISTS rank_cache (
+         puuid         TEXT PRIMARY KEY,
+         has_rank      INTEGER NOT NULL,
+         tier          TEXT,
+         rank          TEXT,
+         league_points INTEGER,
+         wins          INTEGER,
+         losses        INTEGER,
+         updated_at    INTEGER NOT NULL
+       )`,
     ],
     "write",
   );

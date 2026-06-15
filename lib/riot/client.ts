@@ -19,25 +19,37 @@ export class RiotApiError extends Error {
   }
 }
 
-// --- Prosty throttle: kolejka z ograniczeniem odstępu między requestami. ---
-const MIN_INTERVAL_MS = 60; // ~16 req/s, z zapasem względem 20 req/s
-let lastRequestAt = 0;
-let chain: Promise<unknown> = Promise.resolve();
+// Pula o ograniczonej równoległości — do MAX_CONCURRENT zapytań naraz.
+// Zamiast serializować wszystko (co było wolne przy MMR / wielu meczach),
+// puszczamy je równolegle, ale z limitem, żeby zmieścić się w ~20 req/s dev key.
+const MAX_CONCURRENT = 8;
+let active = 0;
+const queue: (() => void)[] = [];
 
-function schedule<T>(fn: () => Promise<T>): Promise<T> {
-  const run = async (): Promise<T> => {
-    const wait = Math.max(0, lastRequestAt + MIN_INTERVAL_MS - Date.now());
-    if (wait > 0) await sleep(wait);
-    lastRequestAt = Date.now();
-    return fn();
-  };
-  const result = chain.then(run, run);
-  // utrzymujemy łańcuch, ignorując błędy w nim (obsługiwane przez wywołującego)
-  chain = result.then(
-    () => undefined,
-    () => undefined,
-  );
-  return result;
+function acquire(): Promise<void> {
+  if (active < MAX_CONCURRENT) {
+    active++;
+    return Promise.resolve();
+  }
+  return new Promise<void>((resolve) => queue.push(resolve));
+}
+
+function release(): void {
+  active--;
+  const next = queue.shift();
+  if (next) {
+    active++;
+    next();
+  }
+}
+
+async function schedule<T>(fn: () => Promise<T>): Promise<T> {
+  await acquire();
+  try {
+    return await fn();
+  } finally {
+    release();
+  }
 }
 
 function sleep(ms: number): Promise<void> {

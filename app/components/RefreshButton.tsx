@@ -12,14 +12,15 @@ export function RefreshButton() {
   async function handleRefresh() {
     setRefreshing(true);
     try {
+      // Odświeżamy to, co zmienia się po grze (ranga/LP, nowe mecze).
+      // MMR celowo pomijamy — jest drogie i zmienia się wolno, liczy się raz
+      // przy wejściu na stronę. invalidateQueries sam przeładowuje aktywne
+      // pasujące zapytania, więc nie wołamy osobnego refetchQueries (które
+      // ciągnęłoby też MMR i spowalniało odświeżanie).
       await queryClient.invalidateQueries({
         predicate: (q) =>
-          ["players", "matches", "mmr", "match"].includes(
-            q.queryKey[0] as string,
-          ),
+          ["players", "matches"].includes(q.queryKey[0] as string),
       });
-      // Czekamy aż aktywne zapytania faktycznie się przeładują.
-      await queryClient.refetchQueries({ type: "active" });
     } finally {
       setRefreshing(false);
     }

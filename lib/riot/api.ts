@@ -12,6 +12,7 @@ import {
   type LeagueEntry,
   type Match,
 } from "./types";
+import { getCachedRank, setCachedRank } from "@/lib/db/ranks";
 
 /** Riot ID (gameName#tagLine) -> konto z PUUID. */
 export function getAccountByRiotId(
@@ -64,16 +65,28 @@ export function pickSoloQueue(entries: LeagueEntry[]): LeagueEntry | undefined {
 const soloCache = new Map<string, { value: LeagueEntry | null; ts: number }>();
 const RANK_TTL_MS = 10 * 60 * 1000;
 
-/** Zwraca wpis SoloQ gracza (tier/rank/LP) albo null. Best-effort + cache. */
+/**
+ * Zwraca wpis SoloQ gracza (tier/rank/LP) albo null. Best-effort, dwupoziomowy
+ * cache: pamięć (szybko w obrębie wywołania) + baza (przetrwa zimny start na
+ * serverless). Dopiero przy braku świeżego wpisu pytamy Riota.
+ */
 export async function getSoloEntry(
   puuid: string,
 ): Promise<LeagueEntry | null> {
-  const cached = soloCache.get(puuid);
-  if (cached && Date.now() - cached.ts < RANK_TTL_MS) return cached.value;
+  const mem = soloCache.get(puuid);
+  if (mem && Date.now() - mem.ts < RANK_TTL_MS) return mem.value;
+
+  const fromDb = await getCachedRank(puuid);
+  if (fromDb !== undefined) {
+    soloCache.set(puuid, { value: fromDb, ts: Date.now() });
+    return fromDb;
+  }
+
   try {
     const entries = await getLeagueEntriesByPuuid(puuid);
     const value = pickSoloQueue(entries) ?? null;
     soloCache.set(puuid, { value, ts: Date.now() });
+    await setCachedRank(puuid, value);
     return value;
   } catch {
     return null; // brak rangi nie psuje widoku
