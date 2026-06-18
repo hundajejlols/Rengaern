@@ -7,7 +7,7 @@ async function fetchMatch(matchId: string): Promise<MatchDetailResponse> {
   const res = await fetch(`/api/match/${matchId}`);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
@@ -36,12 +36,12 @@ export function MatchDetail({
     <div className="border-t border-navy-700 bg-navy-950/60 p-4">
       {isLoading && (
         <p className="py-6 text-center text-gold-300/60">
-          Ładowanie składów (i rang 10 graczy)…
+          Loading lineups (and ranks of 10 players)…
         </p>
       )}
       {isError && (
         <p className="py-6 text-center text-red-400">
-          Błąd: {(error as Error).message}
+          Error: {(error as Error).message}
         </p>
       )}
 
@@ -55,20 +55,20 @@ export function MatchDetail({
                     (team.win ? "text-emerald-400" : "text-red-400")
                   }
                 >
-                  {team.teamId === 100 ? "Niebiescy" : "Czerwoni"} —{" "}
-                  {team.win ? "Wygrana" : "Przegrana"}
+                  {team.teamId === 100 ? "Blue" : "Red"} —{" "}
+                  {team.win ? "Victory" : "Defeat"}
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-navy-700">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-navy-800 text-gold-300/50">
                       <tr>
-                        <th className="px-2 py-1.5">Gracz</th>
-                        <th className="px-2 py-1.5">Ranga</th>
+                        <th className="px-2 py-1.5">Player</th>
+                        <th className="px-2 py-1.5">Rank</th>
                         <th className="px-2 py-1.5">Score</th>
                         <th className="px-2 py-1.5">KDA</th>
                         <th className="px-2 py-1.5">DMG</th>
                         <th className="px-2 py-1.5">CS</th>
-                        <th className="px-2 py-1.5">Przedmioty</th>
+                        <th className="px-2 py-1.5">Items</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -104,7 +104,7 @@ function PlayerRow({
         (highlight ? "bg-gold-500/10" : "odd:bg-navy-900 even:bg-navy-900/40")
       }
     >
-      {/* Gracz: postać + lvl + czary + runy + nick */}
+      {/* Player: champion + lvl + spells + runes + name */}
       <td className="px-2 py-1.5">
         <div className="flex items-center gap-2">
           <div className="relative">
@@ -176,7 +176,7 @@ function PlayerRow({
         <span className="text-gold-300/40">({p.kda})</span>
       </td>
       <td className="px-2 py-1.5 text-gold-300/80">
-        {p.damageToChampions.toLocaleString("pl-PL")}
+        {p.damageToChampions.toLocaleString("en-US")}
       </td>
       <td className="px-2 py-1.5 text-gold-300/80">
         {p.cs} <span className="text-gold-300/40">({p.csPerMin})</span>

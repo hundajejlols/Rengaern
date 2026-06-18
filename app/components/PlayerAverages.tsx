@@ -13,7 +13,7 @@ async function fetchMatches(
   );
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
@@ -43,7 +43,7 @@ export function PlayerAverages({
   if (isLoading)
     return (
       <div className="rounded-xl border border-navy-700 bg-navy-900 p-5 text-sm text-gold-300/60">
-        Liczenie średnich…
+        Calculating averages…
       </div>
     );
   if (isError || !data) return null;
@@ -52,7 +52,7 @@ export function PlayerAverages({
   if (m.length === 0)
     return (
       <div className="rounded-xl border border-navy-700 bg-navy-900 p-5 text-sm text-gold-300/50">
-        Brak meczów — średnie pojawią się po pierwszych grach na {championName}.
+        No matches — averages will appear after the first games on {championName}.
       </div>
     );
 
@@ -64,38 +64,38 @@ export function PlayerAverages({
   const avgD = avg(m, (x) => x.deaths);
   const avgA = avg(m, (x) => x.assists);
   const avgKda =
-    avgD > 0 ? (avgK + avgA) / avgD : avgK + avgA; // perfekcyjne KDA gdy 0 śmierci
+    avgD > 0 ? (avgK + avgA) / avgD : avgK + avgA; // perfect KDA when 0 deaths
 
   const stats: { label: string; value: string }[] = [
-    { label: "Śr. KDA", value: avgKda.toFixed(2) },
+    { label: "Avg KDA", value: avgKda.toFixed(2) },
     {
-      label: "Śr. K / D / A",
+      label: "Avg K / D / A",
       value: `${avgK.toFixed(1)} / ${avgD.toFixed(1)} / ${avgA.toFixed(1)}`,
     },
-    { label: "Śr. CS", value: avg(m, (x) => x.cs).toFixed(0) },
-    { label: "Śr. CS/min", value: avg(m, (x) => x.csPerMin).toFixed(1) },
+    { label: "Avg CS", value: avg(m, (x) => x.cs).toFixed(0) },
+    { label: "Avg CS/min", value: avg(m, (x) => x.csPerMin).toFixed(1) },
     {
-      label: "Śr. DMG",
+      label: "Avg DMG",
       value: Math.round(avg(m, (x) => x.damageToChampions)).toLocaleString(
-        "pl-PL",
+        "en-US",
       ),
     },
-    { label: "Śr. wizja", value: avg(m, (x) => x.visionScore).toFixed(0) },
+    { label: "Avg vision", value: avg(m, (x) => x.visionScore).toFixed(0) },
     {
-      label: "Śr. złoto",
-      value: Math.round(avg(m, (x) => x.goldEarned)).toLocaleString("pl-PL"),
+      label: "Avg gold",
+      value: Math.round(avg(m, (x) => x.goldEarned)).toLocaleString("en-US"),
     },
-    { label: "Śr. AI Score", value: avg(m, (x) => x.aiScore).toFixed(1) },
+    { label: "Avg AI Score", value: avg(m, (x) => x.aiScore).toFixed(1) },
   ];
 
   return (
     <div className="rounded-xl border border-navy-700 bg-navy-900 p-5">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-lg font-semibold text-gold-300">
-          Średnie statystyki na mecz
+          Average stats per match
         </h2>
         <span className="text-xs text-gold-300/40">
-          {games} gier · {winrate}% winrate
+          {games} games · {winrate}% winrate
         </span>
       </div>
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -149,7 +149,7 @@ function Comparison({
   const b = getBenchmark(championId, tier);
   if (!b) return null;
 
-  // higherBetter=false dla śmierci (mniej = lepiej).
+  // higherBetter=false for deaths (fewer = better).
   const rows: {
     label: string;
     mine: number;
@@ -159,19 +159,19 @@ function Comparison({
   }[] = [
     { label: "KDA", mine: my.kda, base: benchmarkKda(b), higherBetter: true, fmt: (n) => n.toFixed(2) },
     { label: "CS", mine: my.cs, base: b.cs, higherBetter: true, fmt: (n) => n.toFixed(0) },
-    { label: "DMG", mine: my.damage, base: b.damage, higherBetter: true, fmt: (n) => Math.round(n).toLocaleString("pl-PL") },
-    { label: "Złoto", mine: my.gold, base: b.gold, higherBetter: true, fmt: (n) => Math.round(n).toLocaleString("pl-PL") },
-    { label: "Śmierci", mine: my.deaths, base: b.deaths, higherBetter: false, fmt: (n) => n.toFixed(1) },
+    { label: "DMG", mine: my.damage, base: b.damage, higherBetter: true, fmt: (n) => Math.round(n).toLocaleString("en-US") },
+    { label: "Gold", mine: my.gold, base: b.gold, higherBetter: true, fmt: (n) => Math.round(n).toLocaleString("en-US") },
+    { label: "Deaths", mine: my.deaths, base: b.deaths, higherBetter: false, fmt: (n) => n.toFixed(1) },
   ];
 
   return (
     <div className="mt-5 border-t border-navy-700 pt-4">
       <div className="mb-2 flex items-baseline justify-between">
         <h3 className="text-sm font-semibold text-gold-300">
-          Porównanie do graczy na {b.championName} ({b.lane}, {b.bracket})
+          Comparison to {b.championName} players ({b.lane}, {b.bracket})
         </h3>
         <span className="text-[11px] text-gold-300/40">
-          źródło: {b.source} · {b.capturedAt}
+          source: {b.source} · {b.capturedAt}
         </span>
       </div>
       <div className="space-y-1.5">

@@ -11,7 +11,7 @@ async function fetchPlayers(): Promise<PlayersResponse> {
   const res = await fetch("/api/players");
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
@@ -33,36 +33,36 @@ export default function HomePage() {
             Ivern &amp; Rengar Challenge
           </h1>
           <p className="text-sm text-gold-300/60">
-            Jeden gracz = jeden champion. Wszystko w jednym miejscu.
+            One player = one champion. Everything in one place.
           </p>
         </div>
         <RefreshButton />
       </header>
 
-      {isLoading && <p className="text-gold-300/70">Ładowanie…</p>}
+      {isLoading && <p className="text-gold-300/70">Loading…</p>}
 
       {isError && (
         <div className="rounded-lg border border-red-700 bg-red-950/40 p-4 text-red-300">
-          Błąd: {(error as Error).message}
+          Error: {(error as Error).message}
         </div>
       )}
 
       {data && (
         <>
-          {/* Jedna wspólna sekcja „Aktualna gra" — grają razem. */}
+          {/* One shared "Live game" section — they play together. */}
           {puuids.length > 0 && <LiveGame puuids={puuids} />}
 
-          {/* Statystyki osobno — dwie kolumny obok siebie. */}
+          {/* Stats separately — two columns side by side. */}
           <div className="grid gap-6 lg:grid-cols-2">
             {data.players.map((player) => (
               <PlayerSection key={player.id} player={player} />
             ))}
           </div>
 
-          {/* Wspólna historia meczów — jeden wiersz na grę, staty obu graczy. */}
+          {/* Shared match history — one row per game, stats for both players. */}
           <div className="mt-10">
             <h2 className="mb-3 text-xl font-bold text-gold-400">
-              Wspólna historia meczów
+              Shared match history
             </h2>
             <CombinedMatchHistory players={data.players} />
           </div>

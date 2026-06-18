@@ -79,7 +79,7 @@ export async function GET(
   } catch (err) {
     const status = err instanceof RiotApiError ? err.status : 500;
     const message =
-      err instanceof RiotApiError ? `Riot API ${err.status}` : "Błąd serwera";
+      err instanceof RiotApiError ? `Riot API ${err.status}` : "Server error";
     return NextResponse.json({ error: message }, { status });
   }
 }

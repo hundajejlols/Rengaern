@@ -4,7 +4,7 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   title: "Ivern & Rengar Challenge Tracker",
-  description: "Śledzenie challenge'u: jeden gracz = jeden champion.",
+  description: "Tracking the challenge: one player = one champion.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pl">
+    <html lang="en">
       <body className="antialiased">
         <Providers>{children}</Providers>
       </body>

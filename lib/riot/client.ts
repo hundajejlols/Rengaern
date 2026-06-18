@@ -71,7 +71,7 @@ async function rawRequest(
   if (!RIOT_API_KEY) {
     throw new RiotApiError(
       500,
-      "Brak RIOT_API_KEY w środowisku. Ustaw klucz w .env.",
+      "Missing RIOT_API_KEY in the environment. Set the key in .env.",
     );
   }
 

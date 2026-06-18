@@ -16,15 +16,15 @@ async function fetchMatches(
   );
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
 
-// Pełny profil pojedynczego gracza (bez sekcji live i nawigacji) —
-// używany na łączonym dashboardzie dla obu graczy naraz.
+// Full profile of a single player (without the live section and navigation) —
+// used on the combined dashboard for both players at once.
 export function PlayerSection({ player }: { player: PlayerRankData }) {
-  // Winrate / liczbę gier liczymy z meczów challenge'u, nie z sezonu konta.
+  // Winrate / game count are computed from challenge matches, not the account season.
   const { data: matchData } = useQuery({
     queryKey: ["matches", player.puuid, player.championId],
     queryFn: () => fetchMatches(player.puuid, player.championId),
@@ -66,7 +66,7 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
             {player.soloQueue && !player.error && (
               <dl className="flex gap-6 text-sm">
                 <Stat
-                  label="Ranga"
+                  label="Rank"
                   value={`${player.soloQueue.tier} ${player.soloQueue.rank}`}
                   sub={`${player.soloQueue.leaguePoints} LP`}
                 />
@@ -75,7 +75,7 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
                   value={`${winrate}%`}
                   sub={`${wins}W / ${games - wins}L`}
                 />
-                <Stat label="Gier" value={String(games)} sub="challenge" />
+                <Stat label="Games" value={String(games)} sub="challenge" />
               </dl>
             )}
           </div>

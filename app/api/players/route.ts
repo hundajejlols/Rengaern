@@ -70,7 +70,7 @@ export async function GET() {
         const message =
           err instanceof RiotApiError
             ? `Riot API ${err.status}`
-            : "Nieznany błąd";
+            : "Unknown error";
         return { ...base, puuid: "", soloQueue: null, error: message };
       }
     }),

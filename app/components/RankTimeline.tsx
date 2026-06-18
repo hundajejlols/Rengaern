@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-// Timeline rangi: od startu challenge'u (Silver IV) do celu (Master).
-// Pozycja znacznika liczona jest z aktualnej rangi czytanej z Riot API.
+// Rank timeline: from the challenge start (Silver IV) to the goal (Master).
+// The marker position is computed from the current rank read from Riot API.
 
 const TIERS = [
   "IRON",
@@ -20,7 +20,7 @@ const TIERS = [
 
 const DIV: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4 };
 
-// Wartość liniowa rangi. Dla tierów z dywizjami: IV=0 .. I=3.
+// Linear rank value. For tiers with divisions: IV=0 .. I=3.
 function rankValue(tier: string, rank: string): number {
   const t = TIERS.indexOf(tier.toUpperCase() as (typeof TIERS)[number]);
   const idx = t < 0 ? 2 : t; // fallback: SILVER
@@ -32,7 +32,7 @@ function rankValue(tier: string, rank: string): number {
 const START = rankValue("SILVER", "IV"); // 8
 const GOAL = rankValue("MASTER", "I"); // 28
 
-// Węzły pośrednie — równo rozłożone co 20%.
+// Intermediate nodes — evenly spaced every 20%.
 const MILESTONES = [
   { label: "Silver IV", short: "S4", tier: "SILVER", rank: "IV" },
   { label: "Gold IV", short: "G4", tier: "GOLD", rank: "IV" },
@@ -80,11 +80,11 @@ export function RankTimeline({
     <div className="rounded-xl border border-navy-700 bg-navy-900 px-6 pb-10 pt-8">
       <div className="mb-6 flex items-center justify-between text-xs uppercase tracking-wide text-gold-300/50">
         <span>Start: Silver IV</span>
-        <span>Cel: Master</span>
+        <span>Goal: Master</span>
       </div>
 
       <div className="relative mx-2 h-1.5 rounded-full bg-navy-700">
-        {/* pasek postępu */}
+        {/* progress bar */}
         <div
           className="absolute left-0 top-0 h-full rounded-full transition-all duration-700"
           style={{
@@ -93,7 +93,7 @@ export function RankTimeline({
           }}
         />
 
-        {/* węzły kamieni milowych */}
+        {/* milestone nodes */}
         {MILESTONES.map((m, i) => {
           const p = pct(rankValue(m.tier, m.rank));
           const reached = current >= rankValue(m.tier, m.rank);
@@ -133,7 +133,7 @@ export function RankTimeline({
           );
         })}
 
-        {/* znacznik aktualnej rangi */}
+        {/* current rank marker */}
         {hasRank && (
           <div
             className="absolute top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 transition-all duration-700"

@@ -18,16 +18,16 @@ async function fetchMatches(
   );
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
 
 function timeAgo(ms: number): string {
   const h = Math.floor((Date.now() - ms) / 3_600_000);
-  if (h < 1) return "przed chwilą";
-  if (h < 24) return `${h} godz. temu`;
-  return `${Math.floor(h / 24)} dni temu`;
+  if (h < 1) return "just now";
+  if (h < 24) return `${h}h ago`;
+  return `${Math.floor(h / 24)}d ago`;
 }
 
 function fmtDuration(sec: number): string {
@@ -75,7 +75,7 @@ export function CombinedMatchHistory({
   const loading = results.some((r) => r.isLoading);
   const allPuuids = players.filter((p) => p.puuid).map((p) => p.puuid);
 
-  // Scalamy mecze obu graczy po matchId (grają razem -> ten sam mecz).
+  // Merge both players' matches by matchId (they play together -> same match).
   const byId = new Map<string, MergedRow>();
   results.forEach((r, i) => {
     const player = players[i];
@@ -98,19 +98,19 @@ export function CombinedMatchHistory({
   );
 
   if (loading)
-    return <p className="text-sm text-gold-300/60">Ładowanie meczów…</p>;
+    return <p className="text-sm text-gold-300/60">Loading matches…</p>;
   if (rows.length === 0)
     return (
       <p className="text-sm text-gold-300/50">
-        Brak meczów od startu challenge'u.
+        No matches since the start of the challenge.
       </p>
     );
 
   return (
     <div>
       <p className="mb-2 text-xs text-gold-300/50">
-        Wspólna historia ({rows.length} gier). Kliknij grę, by zobaczyć pełny
-        skład.
+        Shared history ({rows.length} games). Click a game to see the full
+        lineup.
       </p>
       <div className="space-y-2">
         {rows.map((row) => {
@@ -133,7 +133,7 @@ export function CombinedMatchHistory({
                   (row.win ? "border-l-sky-500" : "border-l-red-500")
                 }
               >
-                {/* Wspólny wynik gry */}
+                {/* Shared game result */}
                 <div className="flex w-24 shrink-0 flex-col justify-center px-3 py-2">
                   <span
                     className={
@@ -141,14 +141,14 @@ export function CombinedMatchHistory({
                       (row.win ? "text-sky-400" : "text-red-400")
                     }
                   >
-                    {row.win ? "Wygrana" : "Przegrana"}
+                    {row.win ? "Victory" : "Defeat"}
                   </span>
                   <span className="text-[11px] text-gold-300/40">
                     {fmtDuration(row.gameDuration)} · {timeAgo(row.gameCreation)}
                   </span>
                 </div>
 
-                {/* Blok każdego gracza osobno */}
+                {/* Each player's block separately */}
                 <div className="grid flex-1 grid-cols-2 divide-x divide-navy-700/60">
                   {players.map((p) => (
                     <PlayerCell key={p.id} m={row.perPlayer[p.id]} />
@@ -178,7 +178,7 @@ function PlayerCell({ m }: { m?: MatchSummary }) {
   if (!m)
     return (
       <div className="flex items-center px-3 py-2 text-xs text-gold-300/30">
-        nie grał
+        didn't play
       </div>
     );
   return (

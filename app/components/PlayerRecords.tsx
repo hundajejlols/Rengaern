@@ -12,12 +12,12 @@ async function fetchMatches(
   );
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
 
-// Wyciąga mecz o maksymalnej/minimalnej wartości danej metryki.
+// Extracts the match with the max/min value of a given metric.
 function pick(
   matches: MatchSummary[],
   metric: (m: MatchSummary) => number,
@@ -50,7 +50,7 @@ export function PlayerRecords({
   if (isLoading)
     return (
       <div className="rounded-xl border border-navy-700 bg-navy-900 p-4 text-sm text-gold-300/60">
-        Liczenie rekordów…
+        Calculating records…
       </div>
     );
 
@@ -60,7 +60,7 @@ export function PlayerRecords({
   if (matches.length === 0)
     return (
       <div className="rounded-xl border border-navy-700 bg-navy-900 p-4 text-sm text-gold-300/50">
-        Brak meczów — rekordy pojawią się po pierwszych grach.
+        No matches — records will appear after the first games.
       </div>
     );
 
@@ -78,29 +78,29 @@ export function PlayerRecords({
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/20 p-4">
         <h3 className="mb-2 text-xs font-semibold uppercase text-emerald-400">
-          Najlepsze rekordy
+          Best records
         </h3>
         <dl className="space-y-1.5 text-sm">
-          <Rec label="Najlepsze KDA" value={String(bestKda.kda)} sub={kdaLine(bestKda)} />
-          <Rec label="Najwięcej zabójstw" value={String(mostKills.kills)} sub={kdaLine(mostKills)} />
-          <Rec label="Najlepsze CS/min" value={String(bestCs.csPerMin)} sub={`${bestCs.cs} CS`} />
+          <Rec label="Best KDA" value={String(bestKda.kda)} sub={kdaLine(bestKda)} />
+          <Rec label="Most kills" value={String(mostKills.kills)} sub={kdaLine(mostKills)} />
+          <Rec label="Best CS/min" value={String(bestCs.csPerMin)} sub={`${bestCs.cs} CS`} />
           <Rec
-            label="Najwięcej DMG"
-            value={mostDmg.damageToChampions.toLocaleString("pl-PL")}
+            label="Most DMG"
+            value={mostDmg.damageToChampions.toLocaleString("en-US")}
             sub={kdaLine(mostDmg)}
           />
-          <Rec label="Najwięcej wizji" value={String(mostVision.visionScore)} sub={kdaLine(mostVision)} />
+          <Rec label="Most vision" value={String(mostVision.visionScore)} sub={kdaLine(mostVision)} />
         </dl>
       </div>
 
       <div className="rounded-xl border border-red-800/50 bg-red-950/20 p-4">
         <h3 className="mb-2 text-xs font-semibold uppercase text-red-400">
-          Najgorsze rekordy
+          Worst records
         </h3>
         <dl className="space-y-1.5 text-sm">
-          <Rec label="Najgorsze KDA" value={String(worstKda.kda)} sub={kdaLine(worstKda)} />
-          <Rec label="Najwięcej śmierci" value={String(mostDeaths.deaths)} sub={kdaLine(mostDeaths)} />
-          <Rec label="Najgorsze CS/min" value={String(worstCs.csPerMin)} sub={`${worstCs.cs} CS`} />
+          <Rec label="Worst KDA" value={String(worstKda.kda)} sub={kdaLine(worstKda)} />
+          <Rec label="Most deaths" value={String(mostDeaths.deaths)} sub={kdaLine(mostDeaths)} />
+          <Rec label="Worst CS/min" value={String(worstCs.csPerMin)} sub={`${worstCs.cs} CS`} />
         </dl>
       </div>
     </div>

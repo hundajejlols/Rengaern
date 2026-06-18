@@ -1,5 +1,5 @@
-// Konwersja rangi <-> wartość liczbowa, żeby móc uśredniać rangi (szacowanie MMR).
-// Skala: 1 dywizja = 100 "punktów" + faktyczne LP w obrębie dywizji.
+// Rank <-> numeric value conversion, to be able to average ranks (MMR estimate).
+// Scale: 1 division = 100 "points" + actual LP within the division.
 
 const TIERS = [
   "IRON",
@@ -17,20 +17,20 @@ const MASTER_IDX = TIERS.indexOf("MASTER");
 const DIV_TO_NUM: Record<string, number> = { I: 1, II: 2, III: 3, IV: 4 };
 const NUM_TO_ROMAN = ["", "I", "II", "III", "IV"];
 
-const TIER_PL: Record<string, string> = {
+const TIER_NAMES: Record<string, string> = {
   IRON: "Iron",
-  BRONZE: "Brąz",
+  BRONZE: "Bronze",
   SILVER: "Silver",
   GOLD: "Gold",
-  PLATINUM: "Platyna",
+  PLATINUM: "Platinum",
   EMERALD: "Emerald",
-  DIAMOND: "Diament",
+  DIAMOND: "Diamond",
   MASTER: "Master",
   GRANDMASTER: "Grandmaster",
   CHALLENGER: "Challenger",
 };
 
-/** Ranga -> wartość liczbowa. */
+/** Rank -> numeric value. */
 export function rankToValue(
   tier: string,
   rank: string,
@@ -42,7 +42,7 @@ export function rankToValue(
   return (idx * 4 + divPart) * 100 + leaguePoints;
 }
 
-/** Wartość liczbowa -> czytelna ranga (np. "Gold II · 34 LP"). */
+/** Numeric value -> readable rank (e.g. "Gold II · 34 LP"). */
 export function valueToRank(value: number): string {
   const v = Math.max(0, Math.round(value));
   const units = Math.floor(v / 100);
@@ -52,8 +52,8 @@ export function valueToRank(value: number): string {
 
   if (tierIdx >= MASTER_IDX) {
     tierIdx = Math.min(tierIdx, TIERS.length - 1);
-    return `${TIER_PL[TIERS[tierIdx]]} · ${lp} LP`;
+    return `${TIER_NAMES[TIERS[tierIdx]]} · ${lp} LP`;
   }
   const divNum = 4 - divPart; // divPart 0 -> IV, 3 -> I
-  return `${TIER_PL[TIERS[tierIdx]]} ${NUM_TO_ROMAN[divNum]} · ${lp} LP`;
+  return `${TIER_NAMES[TIERS[tierIdx]]} ${NUM_TO_ROMAN[divNum]} · ${lp} LP`;
 }

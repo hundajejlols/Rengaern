@@ -1,6 +1,6 @@
-// Logika historii meczów: pobierz ID meczów (ranked SoloQ), dociągnij szczegóły
-// (z cache), zredukuj do podsumowania i odfiltruj tylko mecze grane przypisanym
-// championem (Rengar / Ivern). Tylko serwer.
+// Match history logic: fetch match IDs (ranked SoloQ), pull details
+// (from cache), reduce to a summary and filter only matches played with the
+// assigned champion (Rengar / Ivern). Server only.
 import { getMatchIdsByPuuid } from "@/lib/riot/api";
 import { getCachedMatch } from "@/lib/db/matches";
 import { performanceScore } from "@/lib/score";
@@ -14,22 +14,22 @@ import {
 } from "@/lib/ddragon";
 import type { MatchSummary } from "@/lib/types";
 
-// Etykieta dominacji zależna od różnicy AI score (my - przeciwnik na tej roli).
+// Dominance label based on AI score difference (me - opponent in this role).
 function dominanceLabel(diff: number): string {
-  if (diff >= 4) return "Absolutna dominacja";
-  if (diff >= 2.5) return "Totalnie zdominował";
-  if (diff >= 1.2) return "Wygrał lane";
-  if (diff > -1.2) return "Wyrównana lane";
-  if (diff > -2.5) return "Przegrał lane";
-  if (diff > -4) return "Zdominowany";
-  return "Rozjechany na lane";
+  if (diff >= 4) return "Absolute domination";
+  if (diff >= 2.5) return "Totally dominated";
+  if (diff >= 1.2) return "Won lane";
+  if (diff > -1.2) return "Even lane";
+  if (diff > -2.5) return "Lost lane";
+  if (diff > -4) return "Dominated";
+  return "Stomped on lane";
 }
 
 interface Options {
   count?: number;
-  /** Jeśli podane, zwracamy tylko mecze grane tym championem. */
+  /** If provided, return only matches played with this champion. */
   championId?: number;
-  /** Epoch ms — ignorujemy mecze rozpoczęte przed tą chwilą (start challenge'u). */
+  /** Epoch ms — ignore matches started before this moment (challenge start). */
   since?: number;
 }
 

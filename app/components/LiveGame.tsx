@@ -8,7 +8,7 @@ async function fetchLive(puuid: string): Promise<LiveGameResponse> {
   const res = await fetch(`/api/player/${puuid}/live`);
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Błąd ${res.status}`);
+    throw new Error(body.error ?? `Error ${res.status}`);
   }
   return res.json();
 }
@@ -51,7 +51,7 @@ function fmtLength(sec: number): string {
 
 export function LiveGame({ puuids }: { puuids: string[] }) {
   const [open, setOpen] = useState(false);
-  // Gracze grają razem, więc sprawdzamy obu i pokazujemy grę raz (pierwszą żywą).
+  // Players play together, so we check both and show the game once (first live one).
   const { data } = useQuery({
     queryKey: ["live", ...puuids],
     queryFn: async (): Promise<LiveGameResponse> => {
@@ -62,14 +62,14 @@ export function LiveGame({ puuids }: { puuids: string[] }) {
       return { inGame: false, gameLength: 0, gameMode: "", queueId: null, teams: [] };
     },
     enabled: puuids.length > 0,
-    refetchInterval: 60_000, // odświeżaj co minutę, gdy w grze
+    refetchInterval: 60_000, // refresh every minute while in game
   });
 
-  // Nie pokazujemy nic, dopóki nie wiemy albo gdy gracz nie jest w grze.
+  // Show nothing until we know, or when the player isn't in a game.
   if (!data || !data.inGame) return null;
 
   const queue =
-    (data.queueId && QUEUE_NAMES[data.queueId]) || data.gameMode || "Gra";
+    (data.queueId && QUEUE_NAMES[data.queueId]) || data.gameMode || "Game";
 
   return (
     <div className="mb-6 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-5">
@@ -83,7 +83,7 @@ export function LiveGame({ puuids }: { puuids: string[] }) {
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-400" />
         </span>
         <h2 className="text-lg font-semibold text-emerald-400">
-          Aktualna gra — na żywo
+          Current game — live
         </h2>
         <span className="ml-auto text-sm text-gold-300/60">
           {queue} · {fmtLength(data.gameLength)}
@@ -93,7 +93,7 @@ export function LiveGame({ puuids }: { puuids: string[] }) {
 
       {!open && (
         <p className="mt-2 text-xs text-gold-300/40">
-          Kliknij, by zobaczyć skład.
+          Click to see the lineup.
         </p>
       )}
 
@@ -107,7 +107,7 @@ export function LiveGame({ puuids }: { puuids: string[] }) {
                 (team.teamId === 100 ? "text-sky-400" : "text-red-400")
               }
             >
-              {team.teamId === 100 ? "Niebiescy" : "Czerwoni"}
+              {team.teamId === 100 ? "Blue" : "Red"}
             </div>
             <div className="space-y-1">
               {team.players.map((p) => (
