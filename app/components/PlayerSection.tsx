@@ -1,41 +1,13 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import type { MatchHistoryResponse, PlayerRankData } from "@/lib/types";
+import type { PlayerRankData } from "@/lib/types";
 import { PlayerAverages } from "./PlayerAverages";
 import { PlayerRecords } from "./PlayerRecords";
 import { RankTimeline } from "./RankTimeline";
-import { MmrCard } from "./MmrCard";
-
-async function fetchMatches(
-  puuid: string,
-  championId: number,
-): Promise<MatchHistoryResponse> {
-  const res = await fetch(
-    `/api/player/${puuid}/matches?champion=${championId}&count=20`,
-  );
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error ?? `Error ${res.status}`);
-  }
-  return res.json();
-}
 
 // Full profile of a single player (without the live section and navigation) —
 // used on the combined dashboard for both players at once.
 export function PlayerSection({ player }: { player: PlayerRankData }) {
-  // Winrate / game count are computed from challenge matches, not the account season.
-  const { data: matchData } = useQuery({
-    queryKey: ["matches", player.puuid, player.championId],
-    queryFn: () => fetchMatches(player.puuid, player.championId),
-    enabled: Boolean(player.puuid),
-  });
-
-  const challengeMatches = matchData?.matches ?? [];
-  const games = challengeMatches.length;
-  const wins = challengeMatches.filter((m) => m.win).length;
-  const winrate = games > 0 ? Math.round((wins / games) * 100) : 0;
-
   return (
     <section>
       <div className="mb-6">
@@ -70,17 +42,9 @@ export function PlayerSection({ player }: { player: PlayerRankData }) {
                   value={`${player.soloQueue.tier} ${player.soloQueue.rank}`}
                   sub={`${player.soloQueue.leaguePoints} LP`}
                 />
-                <Stat
-                  label="Winrate"
-                  value={`${winrate}%`}
-                  sub={`${wins}W / ${games - wins}L`}
-                />
-                <Stat label="Games" value={String(games)} sub="challenge" />
               </dl>
             )}
           </div>
-
-          {player.puuid && !player.error && <MmrCard puuid={player.puuid} />}
         </div>
 
         {player.puuid && !player.error && (

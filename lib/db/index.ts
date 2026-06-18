@@ -67,9 +67,26 @@ async function initSchema(): Promise<void> {
          losses        INTEGER,
          updated_at    INTEGER NOT NULL
        )`,
+      // Księga gości: komentarze sojuszników przed meczem (z lajkami per komentarz).
+      `CREATE TABLE IF NOT EXISTS comments (
+         id         INTEGER PRIMARY KEY AUTOINCREMENT,
+         author     TEXT NOT NULL,
+         body       TEXT NOT NULL,
+         likes      INTEGER NOT NULL DEFAULT 0,
+         created_at INTEGER NOT NULL
+       )`,
+      `CREATE INDEX IF NOT EXISTS idx_comments_created
+         ON comments(created_at)`,
     ],
     "write",
   );
+
+  // Migracja: dodaj kolumnę likes do istniejących baz (gdy tabela już była).
+  try {
+    await db.execute("ALTER TABLE comments ADD COLUMN likes INTEGER NOT NULL DEFAULT 0");
+  } catch {
+    /* kolumna już istnieje */
+  }
 }
 
 /** Każde zapytanie do bazy musi najpierw zaczekać na ten promise. */

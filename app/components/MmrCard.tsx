@@ -24,33 +24,29 @@ export function MmrCard({ puuid }: { puuid: string }) {
     enabled: Boolean(puuid),
   });
 
+  const sub =
+    data?.estimatedRank && !isError
+      ? `${data.sampleSize} players · ${data.matchesUsed} games`
+      : isError
+        ? "failed"
+        : isLoading
+          ? "…"
+          : "no data";
+
+  const value = isLoading
+    ? "…"
+    : isError
+      ? "—"
+      : (data?.estimatedRank ?? "—");
+
   return (
-    <div className="mt-4 rounded-lg border border-gold-500/30 bg-navy-800/50 p-4">
-      <div className="text-xs uppercase tracking-wide text-gold-300/50">
-        Estimated MMR
-      </div>
-      {isLoading && (
-        <div className="mt-1 text-sm text-gold-300/60">Calculating…</div>
-      )}
-      {isError && (
-        <div className="mt-1 text-sm text-red-400">Calculation failed.</div>
-      )}
-      {data &&
-        (data.estimatedRank ? (
-          <>
-            <div className="mt-1 text-xl font-bold text-gold-300">
-              {data.estimatedRank}
-            </div>
-            <div className="mt-1 text-xs text-gold-300/40">
-              Average rank of {data.sampleSize} players from {data.matchesUsed}{" "}
-              recent matches (excluding Rengar and Ivern).
-            </div>
-          </>
-        ) : (
-          <div className="mt-1 text-sm text-gold-300/50">
-            Not enough data — no ranks in recent matches.
-          </div>
-        ))}
+    <div
+      className="text-right"
+      title="Average rank of nearby players from recent matches (excluding Rengar and Ivern)."
+    >
+      <dt className="text-xs uppercase text-gold-300/50">Est. MMR</dt>
+      <dd className="font-semibold text-gold-300">{value}</dd>
+      <dd className="text-xs text-gold-300/40">{sub}</dd>
     </div>
   );
 }

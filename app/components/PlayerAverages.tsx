@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { MatchHistoryResponse, MatchSummary } from "@/lib/types";
 import { benchmarkKda, getBenchmark } from "@/config/benchmarks";
@@ -34,6 +35,7 @@ export function PlayerAverages({
   championName: string;
   tier?: string;
 }) {
+  const [open, setOpen] = useState(false);
   const { data, isLoading, isError } = useQuery({
     queryKey: ["matches", puuid, championId],
     queryFn: () => fetchMatches(puuid, championId),
@@ -90,41 +92,51 @@ export function PlayerAverages({
 
   return (
     <div className="rounded-xl border border-navy-700 bg-navy-900 p-5">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold text-gold-300">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-baseline justify-between text-left"
+      >
+        <h2 className="flex items-center gap-1.5 text-lg font-semibold text-gold-300">
+          <span className="text-gold-300/40">{open ? "▲" : "▼"}</span>
           Average stats per match
         </h2>
         <span className="text-xs text-gold-300/40">
           {games} games · {winrate}% winrate
         </span>
-      </div>
-      <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {stats.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-lg bg-navy-800/60 px-3 py-2.5 text-center"
-          >
-            <dt className="text-[11px] uppercase tracking-wide text-gold-300/50">
-              {s.label}
-            </dt>
-            <dd className="mt-0.5 text-base font-semibold text-gold-300">
-              {s.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
+      </button>
 
-      <Comparison
-        championId={championId}
-        tier={tier}
-        my={{
-          kda: avgKda,
-          cs: avg(m, (x) => x.cs),
-          damage: avg(m, (x) => x.damageToChampions),
-          gold: avg(m, (x) => x.goldEarned),
-          deaths: avgD,
-        }}
-      />
+      {open && (
+        <div className="mt-3">
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {stats.map((s) => (
+              <div
+                key={s.label}
+                className="rounded-lg bg-navy-800/60 px-3 py-2.5 text-center"
+              >
+                <dt className="text-[11px] uppercase tracking-wide text-gold-300/50">
+                  {s.label}
+                </dt>
+                <dd className="mt-0.5 text-base font-semibold text-gold-300">
+                  {s.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+
+          <Comparison
+            championId={championId}
+            tier={tier}
+            my={{
+              kda: avgKda,
+              cs: avg(m, (x) => x.cs),
+              damage: avg(m, (x) => x.damageToChampions),
+              gold: avg(m, (x) => x.goldEarned),
+              deaths: avgD,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

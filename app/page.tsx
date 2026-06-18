@@ -5,6 +5,8 @@ import type { PlayersResponse } from "@/lib/types";
 import { LiveGame } from "./components/LiveGame";
 import { PlayerSection } from "./components/PlayerSection";
 import { CombinedMatchHistory } from "./components/CombinedMatchHistory";
+import { WinrateCounter } from "./components/WinrateCounter";
+import { CommentsSection } from "./components/CommentsSection";
 import { RefreshButton } from "./components/RefreshButton";
 
 async function fetchPlayers(): Promise<PlayersResponse> {
@@ -52,12 +54,20 @@ export default function HomePage() {
           {/* One shared "Live game" section — they play together. */}
           {puuids.length > 0 && <LiveGame puuids={puuids} />}
 
+          {/* Big shared winrate counter (both queue together). */}
+          {(() => {
+            const p = data.players.find((p) => p.puuid && !p.error);
+            return p ? <WinrateCounter player={p} /> : null;
+          })()}
+
           {/* Stats separately — two columns side by side. */}
           <div className="grid gap-6 lg:grid-cols-2">
             {data.players.map((player) => (
               <PlayerSection key={player.id} player={player} />
             ))}
           </div>
+
+          <CommentsSection />
 
           {/* Shared match history — one row per game, stats for both players. */}
           <div className="mt-10">
